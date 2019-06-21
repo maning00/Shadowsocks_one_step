@@ -1,12 +1,13 @@
 #!/bin/bash
-echo -y | apt upgrade
-echo -y | apt update
-echo -y | pip3 install https://github.com/shadowsocks/shadowsocks/archive/master.zip
+apt upgrade
+apt update
+apt install python3-pip
+pip3 install https://github.com/shadowsocks/shadowsocks/archive/master.zip
 mkdir /etc/shadowsocks
 cd /etc/shadowsocks
 wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/config.json
 cd /etc/systemd/system/
-wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/shadowsocks-server.service
+wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/shadowsocks-serve$
 systemctl start shadowsocks-server
 systemctl enable shadowsocks-server
 modprobe tcp_bbr
@@ -21,3 +22,4 @@ wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/loca
 sysctl --system
 systemctl daemon-reload
 systemctl restart shadowsocks-server
+
