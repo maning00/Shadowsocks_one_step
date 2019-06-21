@@ -1,0 +1,2 @@
+# Shadowsocks_one_step
+一键搭建shadowsocks服务（使用Systemd管理）并开启BBR
