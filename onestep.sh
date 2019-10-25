@@ -34,9 +34,9 @@ install_nginx(){
     mkdir /etc/nginx
     mkdir /etc/nginx/ssl
     mkdir /etc/nginx/conf.d
-    wget https://nginx.org/download/nginx-1.15.9.tar.gz
-    tar xf nginx-1.15.9.tar.gz && rm nginx-1.15.9.tar.gz
-    cd nginx-1.15.9
+    wget https://nginx.org/download/nginx-1.17.5.tar.gz
+    tar xf nginx-1.15.9.tar.gz && rm nginx-1.17.5.tar.gz
+    cd nginx-1.17.5
     ./configure --prefix=/etc/nginx --with-openssl=../openssl-1.1.1d --with-openssl-opt='enable-tls1_3' --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_sub_module --with-stream --with-stream_ssl_module
     make && make install
     
@@ -119,7 +119,7 @@ server {
     #access_log /var/log/nginx/access.log combined;
     location /mypath {
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:11234; 
+        proxy_pass http://127.0.0.1:26550; 
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
