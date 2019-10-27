@@ -71,7 +71,7 @@ EOF
 
 cat > /etc/nginx/conf.d/default.conf<<-EOF
 server {
-    listen       80;
+    listen       [::]:80;
     server_name  $domain;
     root /etc/nginx/html;
     index index.php index.html index.htm;
