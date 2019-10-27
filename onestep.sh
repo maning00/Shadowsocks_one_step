@@ -28,8 +28,8 @@ install_nginx(){
     systemctl stop firewalld
     systemctl disable firewalld
     yum install -y libtool perl-core zlib-devel gcc wget pcre* unzip
-    wget https://www.openssl.org/source/openssl-1.1.1d.tar.gz
-    tar xzvf openssl-1.1.1d.tar.gz
+    wget https://www.openssl.org/source/openssl-1.1.1a.tar.gz
+    tar xzvf openssl-1.1.1a.tar.gz
     
     mkdir /etc/nginx
     mkdir /etc/nginx/ssl
@@ -37,7 +37,7 @@ install_nginx(){
     wget https://nginx.org/download/nginx-1.15.9.tar.gz
     tar xf nginx-1.15.9.tar.gz && rm nginx-1.15.9.tar.gz
     cd nginx-1.15.9
-    ./configure --prefix=/etc/nginx --with-openssl=../openssl-1.1.1d --with-openssl-opt='enable-tls1_3' --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_sub_module --with-stream --with-stream_ssl_module --with-ipv6
+    ./configure --prefix=/etc/nginx --with-openssl=../openssl-1.1.1a --with-openssl-opt='enable-tls1_3' --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_sub_module --with-stream --with-stream_ssl_module --with-pcre --with-ipv6
     make && make install
     
     green "======================"
@@ -71,6 +71,7 @@ EOF
 
 cat > /etc/nginx/conf.d/default.conf<<-EOF
 server {
+    listen       80;
     listen       [::]:80;
     server_name  $domain;
     root /etc/nginx/html;
@@ -96,11 +97,13 @@ EOF
 	
 cat > /etc/nginx/conf.d/default.conf<<-EOF
 server { 
+    listen       80;
     listen       [::]:80;
     server_name  $domain;
     rewrite ^(.*)$  https://\$host\$1 permanent; 
 }
 server {
+    listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name $domain;
     root /etc/nginx/html;
@@ -119,7 +122,7 @@ server {
     #access_log /var/log/nginx/access.log combined;
     location /mypath {
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:26550; 
+        proxy_pass http://127.0.0.1:11234; 
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -138,7 +141,7 @@ install_v2ray(){
     bash <(curl -L -s https://install.direct/go.sh)  
     cd /etc/v2ray/
     rm -f config.json
-    wget https://github.com/maning00/Shadowsocks_one_step/raw/master/config.json
+    wget https://raw.githubusercontent.com/atrandys/v2ray-ws-tls/master/config.json
     v2uuid=$(cat /proc/sys/kernel/random/uuid)
     sed -i "s/aaaa/$v2uuid/;" config.json
     newpath=$(cat /dev/urandom | head -1 | md5sum | head -c 4)
@@ -146,8 +149,8 @@ install_v2ray(){
     sed -i "s/mypath/$newpath/;" /etc/nginx/conf.d/default.conf
     cd /etc/nginx/html
     rm -f /etc/nginx/html/*
-    wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/Archive.zip
-    unzip Archive.zip
+    wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
+    unzip web.zip
     /etc/nginx/sbin/nginx -s stop
     /etc/nginx/sbin/nginx
     systemctl restart v2ray.service
@@ -213,6 +216,14 @@ remove_v2ray(){
 
 start_menu(){
     clear
+    green " ===================================="
+    green " 介绍：一键安装v2ray+ws+tls           "
+    green " 系统：centos7                       "
+    green " 作者：atrandys                      "
+    green " 网站：www.atrandys.com              "
+    green " Youtube：atrandys                   "
+    green " ===================================="
+    echo
     green " 1. 安装v2ray+ws+tls"
     green " 2. 升级v2ray"
     red " 3. 卸载v2ray"
@@ -243,3 +254,4 @@ start_menu(){
 }
 
 start_menu
+
