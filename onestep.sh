@@ -146,8 +146,8 @@ install_v2ray(){
     sed -i "s/mypath/$newpath/;" /etc/nginx/conf.d/default.conf
     cd /etc/nginx/html
     rm -f /etc/nginx/html/*
-    wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/web.zip
-    unzip web.zip
+    wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/Archive.zip
+    unzip Archive.zip
     /etc/nginx/sbin/nginx -s stop
     /etc/nginx/sbin/nginx
     systemctl restart v2ray.service
