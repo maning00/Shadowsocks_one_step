@@ -9,6 +9,7 @@
 
   ![](https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/screenshot.png)
   
-##更新
+## 更新
+
 增加V2Ray支持
 <p>https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/ss.sh<p>
