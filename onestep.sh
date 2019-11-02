@@ -141,7 +141,7 @@ install_v2ray(){
     bash <(curl -L -s https://install.direct/go.sh)  
     cd /etc/v2ray/
     rm -f config.json
-    wget https://github.com/maning00/Shadowsocks_one_step/raw/master/config.json
+    wget https://raw.githubusercontent.com/maning00/Shadowsocks_one_step/master/config.json
     v2uuid=$(cat /proc/sys/kernel/random/uuid)
     sed -i "s/aaaa/$v2uuid/;" config.json
     newpath=$(cat /dev/urandom | head -1 | md5sum | head -c 4)
