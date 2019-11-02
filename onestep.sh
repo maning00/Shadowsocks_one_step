@@ -122,7 +122,7 @@ server {
     #access_log /var/log/nginx/access.log combined;
     location /mypath {
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:11234; 
+        proxy_pass http://127.0.0.1:26550; 
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -141,7 +141,7 @@ install_v2ray(){
     bash <(curl -L -s https://install.direct/go.sh)  
     cd /etc/v2ray/
     rm -f config.json
-    wget https://raw.githubusercontent.com/atrandys/v2ray-ws-tls/master/config.json
+    wget https://github.com/maning00/Shadowsocks_one_step/raw/master/config.json
     v2uuid=$(cat /proc/sys/kernel/random/uuid)
     sed -i "s/aaaa/$v2uuid/;" config.json
     newpath=$(cat /dev/urandom | head -1 | md5sum | head -c 4)
@@ -149,8 +149,8 @@ install_v2ray(){
     sed -i "s/mypath/$newpath/;" /etc/nginx/conf.d/default.conf
     cd /etc/nginx/html
     rm -f /etc/nginx/html/*
-    wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
-    unzip web.zip
+    wget https://github.com/maning00/Shadowsocks_one_step/raw/master/Archive.zip
+    unzip Archive.zip
     /etc/nginx/sbin/nginx -s stop
     /etc/nginx/sbin/nginx
     systemctl restart v2ray.service
