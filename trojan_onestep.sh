@@ -1,4 +1,5 @@
 #!/bin/bash
+
 blue(){
     echo -e "\033[34m\033[01m$1\033[0m"
 }
@@ -17,6 +18,7 @@ bred(){
 byellow(){
     echo -e "\033[33m\033[01m\033[05m$1\033[0m"
 }
+
 if [ ! -e '/etc/redhat-release' ]; then
 red "==============="
 red " 仅支持CentOS7"
@@ -29,6 +31,7 @@ red " 仅支持CentOS7"
 red "==============="
 exit
 fi
+
 function install_trojan(){
 systemctl stop firewalld
 systemctl disable firewalld
@@ -49,16 +52,12 @@ if [ $real_addr == $local_addr ] ; then
 	systemctl enable nginx.service
 	#设置伪装站
 	rm -rf /usr/share/nginx/html/*
- 	cd /usr/share/nginx/html/
- 	wget -c https://www.dropbox.com/s/664g1b66qmo1iei/web.zip?dl=1 -O web.zip
-     	unzip web.zip
- 	cd www.hongkongmob.com
- 	mv * ../
- 	rm -rf www.hongkongmob.com
- 	chmod 775 /usr/share/nginx/html/
- 	systemctl start nginx.service
- 	#申请https证书
- 	mkdir /usr/src/trojan-cert
+	cd /usr/share/nginx/html/
+	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
+    	unzip web.zip
+	systemctl start nginx.service
+	#申请https证书
+	mkdir /usr/src/trojan-cert
 	curl https://get.acme.sh | sh
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
@@ -70,11 +69,8 @@ if [ $real_addr == $local_addr ] ; then
 	wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
 	tar xf trojan-1.*
 	#下载trojan客户端
-	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-	unzip trojan-cli.zip
-        rm -f trojan-cli.zip
-        rm -rf /usr/src/trojan-cli/*
-        touch /usr/src/trojan-cli/config.json
+	
+	mkdir /usr/src/trojan-cli
 	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
 	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
@@ -177,12 +173,13 @@ PrivateTmp=true
 [Install]  
 WantedBy=multi-user.target
 EOF
+
 	chmod +x /usr/lib/systemd/system/trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
 	green "======================================================================"
 	green "Trojan已安装完成"
-	green "复制下面的链接"
+	green "1、复制下面的链接，在浏览器打开，下载客户端"
 	blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
 	green "======================================================================"
 	else
@@ -198,6 +195,7 @@ else
 	red "================================"
 fi
 }
+
 function remove_trojan(){
     red "================================"
     red "即将卸载trojan"
@@ -244,4 +242,5 @@ start_menu(){
     ;;
     esac
 }
+
 start_menu
