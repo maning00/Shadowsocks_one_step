@@ -50,46 +50,46 @@ if [ $real_addr == $local_addr ] ; then
 	mkdir /etc/nginx
         mkdir /etc/nginx/conf.d
         wget https://nginx.org/download/nginx-1.15.9.tar.gz
-        tar xf nginx-1.15.9.tar.gz && rm nginx-1.15.9.tar.gz
+        tar xf nginx-1.15.9.tar.gz && rm -f nginx-1.15.9.tar.gz
         cd nginx-1.15.9
         ./configure --prefix=/etc/nginx --with-openssl=../openssl-1.1.1a --with-openssl-opt='enable-tls1_3' --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_sub_module --with-stream --with-stream_ssl_module --with-pcre --with-ipv6
         make && make install
 	cat > /etc/nginx/conf/nginx.conf <<-EOF
-user  root;
-worker_processes  1;
+        user  root;
+        worker_processes  1;
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-
-events {
-    worker_connections  1024;
-}
+        error_log  /var/log/nginx/error.log warn;
+        pid        /var/run/nginx.pid;
 
 
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
+        events {
+           worker_connections  1024;
+        }
 
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
 
-    access_log  /var/log/nginx/access.log  main;
+        http {
+            include       /etc/nginx/mime.types;
+            default_type  application/octet-stream;
 
-    sendfile        on;
-    #tcp_nopush     on;
+            log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                              '$status $body_bytes_sent "$http_referer" '
+                              '"$http_user_agent" "$http_x_forwarded_for"';
 
-    keepalive_timeout  65;
+            access_log  /var/log/nginx/access.log  main;
 
-    #gzip  on;
+            sendfile        on;
+            #tcp_nopush     on;
 
-    include /etc/nginx/conf.d/*.conf;
-}
-EOF
+            keepalive_timeout  65;
+        
+            #gzip  on;
+
+            include /etc/nginx/conf.d/*.conf;
+        }
+        EOF
 	
 	cat > /etc/nginx/conf.d/default.conf<<-EOF
-server {
+        server {
     listen       80;
     listen       [::]:80;
     server_name  localhost;
