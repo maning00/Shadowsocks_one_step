@@ -1,5 +1,4 @@
 #!/bin/bash
-
 blue(){
     echo -e "\033[34m\033[01m$1\033[0m"
 }
@@ -18,7 +17,6 @@ bred(){
 byellow(){
     echo -e "\033[33m\033[01m\033[05m$1\033[0m"
 }
-
 if [ ! -e '/etc/redhat-release' ]; then
 red "==============="
 red " 仅支持CentOS7"
@@ -31,7 +29,6 @@ red " 仅支持CentOS7"
 red "==============="
 exit
 fi
-
 function install_trojan(){
 systemctl stop firewalld
 systemctl disable firewalld
@@ -47,114 +44,27 @@ if [ $real_addr == $local_addr ] ; then
 	green "域名解析正常，开启安装nginx并申请https证书"
 	green "=========================================="
 	sleep 1s
-	mkdir /etc/nginx
-        mkdir /etc/nginx/conf.d
-        wget https://nginx.org/download/nginx-1.15.9.tar.gz
-        tar xf nginx-1.15.9.tar.gz && rm -f nginx-1.15.9.tar.gz
-        cd nginx-1.15.9
-        ./configure --prefix=/etc/nginx --with-openssl=../openssl-1.1.1a --with-openssl-opt='enable-tls1_3' --with-http_v2_module --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_sub_module --with-stream --with-stream_ssl_module --with-pcre --with-ipv6
-        make && make install
-	cat > /etc/nginx/conf/nginx.conf <<-EOF
-        user  root;
-        worker_processes  1;
-
-        error_log  /var/log/nginx/error.log warn;
-        pid        /var/run/nginx.pid;
-
-
-        events {
-           worker_connections  1024;
-        }
-
-
-        http {
-            include       /etc/nginx/mime.types;
-            default_type  application/octet-stream;
-
-            log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                              '$status $body_bytes_sent "$http_referer" '
-                              '"$http_user_agent" "$http_x_forwarded_for"';
-
-            access_log  /var/log/nginx/access.log  main;
-
-            sendfile        on;
-            #tcp_nopush     on;
-
-            keepalive_timeout  65;
-        
-            #gzip  on;
-
-            include /etc/nginx/conf.d/*.conf;
-        }
-        EOF
-	
-	cat > /etc/nginx/conf.d/default.conf<<-EOF
-        server {
-    listen       80;
-    listen       [::]:80;
-    server_name  localhost;
-
-    #charset koi8-r;
-    #access_log  /var/log/nginx/host.access.log  main;
-
-    location / {
-        root   /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
-
-    #error_page  404              /404.html;
-
-    # redirect server error pages to the static page /50x.html
-    #
-    error_page   500 502 503 504  /50x.html;
-    location = /50x.html {
-        root   /usr/share/nginx/html;
-    }
-
-    # proxy the PHP scripts to Apache listening on 127.0.0.1:80
-    #
-    #location ~ \.php$ {
-    #    proxy_pass   http://127.0.0.1;
-    #}
-
-    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-    #
-    #location ~ \.php$ {
-    #    root           html;
-    #    fastcgi_pass   127.0.0.1:9000;
-    #    fastcgi_index  index.php;
-    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-    #    include        fastcgi_params;
-    #}
-
-    # deny access to .htaccess files, if Apache's document root
-    # concurs with nginx's one
-    #
-    #location ~ /\.ht {
-    #    deny  all;
-    #}
-}
-EOF
+	rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+    	yum install -y nginx
+	systemctl enable nginx.service
 	#设置伪装站
 	rm -rf /usr/share/nginx/html/*
-	cd /usr/share/nginx/html/
-	wget -c https://www.dropbox.com/s/664g1b66qmo1iei/web.zip?dl=1 -O web.zip
-    	unzip web.zip
-	rm -f web.zip
-	cd www.hongkongmob.com
-	mv * ../
-	cd ..
-	rm -rf www.hongkongmob.com
-	chmod 775 /usr/share/nginx/html/
-	/etc/nginx/sbin/nginx
-	#申请https证书
-	mkdir /usr/src/trojan-cert
+ 	cd /usr/share/nginx/html/
+ 	wget -c https://www.dropbox.com/s/664g1b66qmo1iei/web.zip?dl=1 -O web.zip
+     	unzip web.zip
+ 	cd www.hongkongmob.com
+ 	mv * ../
+ 	rm -rf www.hongkongmob.com
+ 	chmod 775 /usr/share/nginx/html/
+ 	systemctl start nginx.service
+ 	#申请https证书
+ 	mkdir /usr/src/trojan-cert
 	curl https://get.acme.sh | sh
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-        --reloadcmd  "/etc/nginx/sbin/nginx -s reload"
+        --reloadcmd  "systemctl force-reload  nginx.service"
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
         cd /usr/src
 	wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
@@ -267,7 +177,6 @@ PrivateTmp=true
 [Install]  
 WantedBy=multi-user.target
 EOF
-
 	chmod +x /usr/lib/systemd/system/trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
@@ -289,7 +198,6 @@ else
 	red "================================"
 fi
 }
-
 function remove_trojan(){
     red "================================"
     red "即将卸载trojan"
@@ -298,7 +206,7 @@ function remove_trojan(){
     systemctl stop trojan
     systemctl disable trojan
     rm -f /usr/lib/systemd/system/trojan.service
-    rm -rf /etc/nginx
+    yum remove -y nginx
     rm -rf /usr/src/trojan*
     rm -rf /usr/share/nginx/html/*
     green "=============="
@@ -336,5 +244,4 @@ start_menu(){
     ;;
     esac
 }
-
 start_menu
