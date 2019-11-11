@@ -55,6 +55,10 @@ if [ $real_addr == $local_addr ] ; then
 	cd /usr/share/nginx/html/
 	wget -c https://www.dropbox.com/s/664g1b66qmo1iei/web.zip?dl=1 -O web.zip
     	unzip web.zip
+	cd www.hongkongmob.com
+	mv * ../
+	rm -rf www.hongkongmob.com
+	chmod 775 /usr/share/nginx/html/
 	systemctl start nginx.service
 	#申请https证书
 	mkdir /usr/src/trojan-cert
