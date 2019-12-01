@@ -42,7 +42,6 @@ green "======================="
 read your_domain
 real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
 local_addr=`curl ipv4.icanhazip.com`
-if [ $real_addr == $local_addr ] ; then
 	green "=========================================="
 	green "域名解析正常，开启安装nginx并申请https证书"
 	green "=========================================="
